@@ -379,6 +379,10 @@ sim_main(void)
       regs.regs_F.d[MD_REG_ZERO] = 0.0;
 #endif /* TARGET_ALPHA */
 
+
+        cache_access(icache, regs.regs_PC, &g_icache_miss); //moved this function here
+
+
       /* get the next instruction to execute */
       MD_FETCH_INST(inst, mem, regs.regs_PC);
 
@@ -433,7 +437,6 @@ sim_main(void)
 	    is_write = TRUE;
 	}
 
-	cache_access(icache, regs.regs_PC, &g_icache_miss);
 
       /* go to the next instruction */
       regs.regs_PC = regs.regs_NPC;
