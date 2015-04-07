@@ -64,12 +64,19 @@
 #include "options.h"
 #include "stats.h"
 #include "sim.h"
+
+
+#define  DIRECT_MAPPED_CACHE TRUE
+#define  SET_ASSOCIATIVE_CACHE FALSE
+
+
 static counter_t g_icache_miss;
 static counter_t g_4icache_miss;
 static counter_t g_load_insns;
 static counter_t g_store_insns;
 static counter_t g_load_miss;
 static counter_t g_store_miss;
+
 /*
  * This file implements a functional simulator.  This functional simulator is
  * the simplest, most user-friendly simulator in the simplescalar tool set.
@@ -301,17 +308,37 @@ struct block {
 };
 
 
+
+#if DIRECT_MAPPED_CACHE==TRUE
 /*
 contains a pointer to an array of blocks (called “m_tag_array”) along with some
-additional fields we will use to help us determine the cache set index and the tag for each cache access.
+additional fields we will use to help us determine the cache set index and the tag for each cache acc$
 */
-struct cache {
- struct block *m_tag_array;
- unsigned m_total_blocks;
- unsigned m_set_shift;
- unsigned m_set_mask;
- unsigned m_tag_shift;
+	struct cache {
+		struct block *m_tag_array;
+		unsigned m_total_blocks;
+ 		unsigned m_set_shift;
+ 		unsigned m_set_mask;
+ 		unsigned m_tag_shift;
 };
+
+#elif SET_ASSOCIATIVE_CACHE==TRUE
+/*
+Set Associative cahce contains multiple sets.
+*/
+  struct set {
+    struct block *m_tag_array;
+    unsigned m_total_blocks;
+    unsigned m_set_shift;
+    unsigned m_set_mask;
+    unsigned m_tag_shift;
+	};
+// $ way set associative cache.
+	struct cache {
+		struct  set * set_array [4];
+	};
+
+#endif 
 
 
 /*
