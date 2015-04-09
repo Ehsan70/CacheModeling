@@ -72,8 +72,8 @@
 
 static counter_t g_icache_miss;
 //static counter_t g_4icache_miss;
-//static counter_t g_load_insns;
-//static counter_t g_store_insns;
+static counter_t g_load_inst;
+static counter_t g_store_inst;
 //static counter_t g_load_miss;
 //static counter_t g_store_miss;
 
@@ -137,6 +137,15 @@ sim_reg_stats(struct stat_sdb_t *sdb)
 	stat_reg_formula(sdb, "sim_icache_miss_rate",
  			"instruction cache miss rate (percentage)",
  			"100*(sim_num_icache_miss / sim_num_insn)", NULL);
+	
+        stat_reg_counter(sdb, "sim_num_load",
+                        "total number of load instructions",
+                        &g_load_inst, 0, NULL);
+        stat_reg_counter(sdb, "sim_num_store",
+                        "total number of store instructions",
+                        &g_store_inst, 0, NULL);
+
+
 
   stat_reg_counter(sdb, "sim_num_insn",
 		   "total number of instructions executed",
@@ -463,6 +472,16 @@ sim_main(void)
 	  if (MD_OP_FLAGS(op) & F_STORE)
 	    is_write = TRUE;
 	}
+	
+      if (MD_OP_FLAGS(op) & F_LOAD)
+        {
+          g_load_inst++;
+        }
+
+      if (MD_OP_FLAGS(op) & F_STORE)
+        {
+          g_store_inst++;
+        }
 
 
       /* go to the next instruction */
