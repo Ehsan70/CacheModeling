@@ -71,11 +71,11 @@
 
 
 static counter_t g_icache_miss;
-static counter_t g_4icache_miss;
-static counter_t g_load_insns;
-static counter_t g_store_insns;
-static counter_t g_load_miss;
-static counter_t g_store_miss;
+//static counter_t g_4icache_miss;
+//static counter_t g_load_insns;
+//static counter_t g_store_insns;
+//static counter_t g_load_miss;
+//static counter_t g_store_miss;
 
 /*
  * This file implements a functional simulator.  This functional simulator is
