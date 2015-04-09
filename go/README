@@ -1,0 +1,3 @@
+Run this benchmark with the command line:
+
+$ ../sim-safe  -max:inst 100000000 go.ss 9 9
