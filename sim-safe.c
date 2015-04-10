@@ -346,6 +346,7 @@ Set Associative cahce contains multiple sets.
 	struct cache {
 		struct set * set_array [4];
 		unsigned  s_total_set = 4;
+		unsigned  s_shift_set = 2; // log 4 = 2 
 	}
 #endif 
 
@@ -359,7 +360,7 @@ the right by “c->m_set_shift” bits, and then bit-wise AND-ing the result wit
 */
 void cache_access( struct cache *c, unsigned addr, counter_t *miss_counter )
 {
-	 unsigned index, tag;
+ 	unsigned index, tag;
  	index = (addr>>c->m_set_shift)&c->m_set_mask;
  	tag = (addr>>c->m_tag_shift);
  	assert( index < c->m_total_blocks );
@@ -367,9 +368,8 @@ void cache_access( struct cache *c, unsigned addr, counter_t *miss_counter )
  		*miss_counter = *miss_counter + 1;
  		c->m_tag_array[index].m_valid = 1;
  		c->m_tag_array[index].m_tag = tag;
- }
+	}
 }
-
 
 /*
 This function is called with three parameters: The cache to access, the starting
@@ -378,10 +378,14 @@ This is used for set associative cache.
 */
 void SA_cache_access( struct cache *c, unsigned addr, counter_t *miss_counter )
 {
-        unsigned index, tag;
-        index = (addr>>c->m_set_shift)&c->m_set_mask;
-        tag = (addr>>c->m_tag_shift);
-        assert( index < c->m_total_blocks );
+				unsigned addr_tmp = addr;
+        unsigned index, tag, set;
+				addr_tmp = addr_tmp >> 6;
+        index = ( addr_tmp ) & 127;
+        addr_tmp = addr_tmp >>2;
+				set = addr_tmp & 3;
+				tag = ( addr>> 13);
+        assert( index < 128 );
         if(!(c->m_tag_array[index].m_valid&&(c->m_tag_array[index].m_tag==tag))) {
                 *miss_counter = *miss_counter + 1;
                 c->m_tag_array[index].m_valid = 1;
