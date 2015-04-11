@@ -57,7 +57,7 @@ FFLAGS = -DDEBUG
 
 CFLAGS = $(MFLAGS) $(FFLAGS) $(OFLAGS) $(BINUTILS_INC) $(BINUTILS_LIB)
 
-SRCS =	main.c sim-safe.c  \
+SRCS =	main.c sim-safe.c \
 	memory.c regs.c  \
 	resource.c endian.c symbol.c eval.c options.c range.c \
 	eio.c stats.c endian.c misc.c \
