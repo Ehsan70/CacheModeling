@@ -25,3 +25,6 @@ instruction cache when an instruction cache access misses.
 * Execute the command that is saved on README file in each file. 
   * One way is to directly send the command to bash, by executing bash README   
 
+
+#Note:
+This assigment was part of EECE 476 computer structure course at University of British Columbia (UBC). 
