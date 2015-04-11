@@ -336,17 +336,18 @@ additional fields we will use to help us determine the cache set index and the t
 Set Associative cahce contains multiple sets.
 */
   struct set {
-    struct block *m_tag_array;
-    unsigned m_total_blocks;
-    unsigned m_set_shift;
-    unsigned m_set_mask;
-    unsigned m_tag_shift;
-	};
-// $ way set associative cache.
-	struct cache {
-		struct  set * set_array [4];
+    struct block * s_tag_array;
+		unsigned s_total_blocks;
+    unsigned s_block_shift;
+    unsigned s_block_mask;
+    unsigned s_tag_shift;
 	};
 
+	struct cache {
+		struct set * set_array [4];
+		unsigned  s_total_set = 4;
+		unsigned  s_shift_set = 2; // log 4 = 2 
+	}
 #endif 
 
 
@@ -359,7 +360,7 @@ the right by “c->m_set_shift” bits, and then bit-wise AND-ing the result wit
 */
 void cache_access( struct cache *c, unsigned addr, counter_t *miss_counter )
 {
-	 unsigned index, tag;
+ 	unsigned index, tag;
  	index = (addr>>c->m_set_shift)&c->m_set_mask;
  	tag = (addr>>c->m_tag_shift);
  	assert( index < c->m_total_blocks );
@@ -367,8 +368,31 @@ void cache_access( struct cache *c, unsigned addr, counter_t *miss_counter )
  		*miss_counter = *miss_counter + 1;
  		c->m_tag_array[index].m_valid = 1;
  		c->m_tag_array[index].m_tag = tag;
+	}
+}
+
+/*
+This function is called with three parameters: The cache to access, the starting
+address of the memory reference, and a pointer to the miss counter to update on a cache miss. 
+This is used for set associative cache. 
+*/
+void SA_cache_access( struct cache *c, unsigned addr, counter_t *miss_counter )
+{
+				unsigned addr_tmp = addr;
+        unsigned index, tag, set;
+				addr_tmp = addr_tmp >> 6;
+        index = ( addr_tmp ) & 127;
+        addr_tmp = addr_tmp >>2;
+				set = addr_tmp & 3;
+				tag = ( addr>> 13);
+        assert( index < 128 );
+        if(!(c->m_tag_array[index].m_valid&&(c->m_tag_array[index].m_tag==tag))) {
+                *miss_counter = *miss_counter + 1;
+                c->m_tag_array[index].m_valid = 1;
+                c->m_tag_array[index].m_tag = tag;
  }
 }
+
 
 /* start simulation, program loaded, processor precise state initialized */
 void
@@ -380,6 +404,7 @@ sim_main(void)
   register int is_write;
   enum md_fault_type fault;
 
+#if DIRECT_MAPPED_CACHE==TRUE
 	/* Allocates memory for an instruction cache and initializes it to all zeros*/
   struct cache *icache = (struct cache *) calloc( sizeof(struct cache), 1 );
   
@@ -401,6 +426,27 @@ sim_main(void)
   icache->m_set_mask = (1<<9)-1;
   icache->m_tag_shift = 15;
 
+#elif SET_ASSOCIATIVE_CACHE==TRUE
+
+	/* Allocating memory for set associative cache*/
+  struct cache *sa_cache = (struct cache *) calloc( sizeof(struct cache), 1 );  
+  
+	int i;
+	for (i=0 ; i<4 ; i++ ){
+		(*sa_cache).set_array[i] =  (struct set *) calloc (sizeof (struct set), 1);  
+	}
+
+	for(i=0; i <4 ; i++){
+		(*((*sa_cache).set_array[i])).s_tag_array = (struct block *) calloc (sizeof (struct block), 128); // 512/4 = 128
+		(*((*sa_cache).set_array[i])).s_total_blocks = 512; // total num of blocks in cache; Not sure if this will be used 
+		(*((*sa_cache).set_array[i])).s_block_shift = 6; 
+    (*((*sa_cache).set_array[i])).s_block_mask = 127; // Each set has 128 - 1  blocks
+		(*((*sa_cache).set_array[i])).s_tag_shift = 15; // Not sure  
+
+	} 
+
+#endif 
+
   fprintf(stderr, "sim: ** starting functional simulation **\n");
 
   /* set up initial default next PC */
@@ -416,8 +462,7 @@ sim_main(void)
 #endif /* TARGET_ALPHA */
 
 
-        cache_access(icache, regs.regs_PC, &g_icache_miss); //moved this function here
-
+      cache_access(icache, regs.regs_PC, &g_icache_miss); //moved this function here
 
       /* get the next instruction to execute */
       MD_FETCH_INST(inst, mem, regs.regs_PC);
