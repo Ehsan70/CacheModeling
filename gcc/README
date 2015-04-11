@@ -1,3 +1,1 @@
-Run this benchmark with the command:
-
-$ ../sim-safe -max:inst 100000000 cc1.ss -O2 integrate.i
+../sim-safe2 -max:inst 100000000 cc1.ss -O2 integrate.i
