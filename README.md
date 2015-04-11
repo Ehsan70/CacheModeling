@@ -1,4 +1,5 @@
 # CacheModeling
+This assignment uses SimpleScalar to analyze miss rate for Direct Mapped , 4-way Set Associative and 8-way Set Associative caches.  
 
 ## Part (a): Instruction Cache
 Model the following two instruction cache configurations: 
@@ -18,5 +19,9 @@ can be triggered by either a loads or a store) divided by the total number of st
 Extend the set associative instruction cache in part (a)(ii) to prefetch the next consecutive block into the
 instruction cache when an instruction cache access misses. 
 
-
+# How to run the code? 
+* Clone the code and 'make' the files.
+* Go to any of the folders (./go , ./vpr , ./gcc , ./fppp)
+* Execute the command that is saved on README file in each file. 
+  * One way is to directly send the command to bash, by executing bash README   
 
