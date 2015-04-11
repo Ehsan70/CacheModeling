@@ -457,17 +457,17 @@ sim_main(void)
 //initialize tag array to 1024 because we have 32kb and each block is 32bytes. (32kb/32b)=1024
 	icache4->m_tag_array = (struct block *) calloc (sizeof(struct block), 1024);
 	icache4->m_total_blocks = 1024; //32kb/32b=1024
-	icache4->m_set_shift = 7; //shift 7 bits because each block is 32bytes
-	icache4->m_set_mask = (1<<7) - 1; //1 set is 4 blocks so we have 128 sets. thus 1<<7
+	icache4->m_set_shift = 7; // 2^5=32(byte blocks) and 2^2=4(way). 5+2=7 so shift 7 bits
+	icache4->m_set_mask = (1<<8)-1; //1set=4blocks so 1024/4=256 so we have 256 sets. thus 1<<8
 	icache4->m_tag_shift = 14; //lower 7+7=14 used for offset and index so shift by 15 for tag
 	icache4->m_nways = 4;
 
         struct cache *icache8 = (struct cache *) calloc (sizeof(struct cache), 1);
 //initialize tag array to 256 because we have 16kb and each block is 64bytes so (16kb/64b)=256
         icache8->m_tag_array = (struct block *) calloc (sizeof(struct block), 256);
-        icache8->m_total_blocks = 256; //32kb/32b=1024
-        icache8->m_set_shift = 9; //shift 7 bits because each block is 32bytes
-        icache8->m_set_mask = (1<<5) - 1; //1 set is 4 blocks so we have 128 sets. thus 1<<7
+        icache8->m_total_blocks = 256; //16kb/64b=256
+        icache8->m_set_shift = 9; //2^6=64(bytes) and 2^3=8(way). 6+3=9 so shift 9
+        icache8->m_set_mask = (1<<5)-1; //1set=4blocks,256/4=32 so  we have 32 sets. thus 1<<5
         icache8->m_tag_shift = 14; //lower 9+5=14 used for offset and index so shift by 15 for tag
         icache8->m_nways = 8;
 
@@ -544,11 +544,13 @@ sim_main(void)
 	}
 	
       if (MD_OP_FLAGS(op) & F_LOAD){
+	// place function call here because we load misses for an 8-way cache
 		set_assoc_cache(icache8, addr, &g_load_miss, sim_num_insn, 64);
         	g_load_inst++;
       	}
 
       if (MD_OP_FLAGS(op) & F_STORE){
+	// place function call here to incrememnt the store miss variable when there is a miss in the 8-way cache for a store instruction. 
 		set_assoc_cache(icache8, addr, &g_store_miss, sim_num_insn, 64);
       		g_store_inst++;
 	}
