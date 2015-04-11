@@ -459,7 +459,7 @@ sim_main(void)
 	icache4->m_total_blocks = 1024; //32kb/32b=1024
 	icache4->m_set_shift = 7; // 2^5=32(byte blocks) and 2^2=4(way). 5+2=7 so shift 7 bits
 	icache4->m_set_mask = (1<<8)-1; //1set=4blocks so 1024/4=256 so we have 256 sets. thus 1<<8
-	icache4->m_tag_shift = 14; //lower 7+7=14 used for offset and index so shift by 15 for tag
+	icache4->m_tag_shift = 15; //lower 7+8=15 used for offset and index so shift by 15 for tag
 	icache4->m_nways = 4;
 
         struct cache *icache8 = (struct cache *) calloc (sizeof(struct cache), 1);
@@ -467,7 +467,7 @@ sim_main(void)
         icache8->m_tag_array = (struct block *) calloc (sizeof(struct block), 256);
         icache8->m_total_blocks = 256; //16kb/64b=256
         icache8->m_set_shift = 9; //2^6=64(bytes) and 2^3=8(way). 6+3=9 so shift 9
-        icache8->m_set_mask = (1<<5)-1; //1set=4blocks,256/4=32 so  we have 32 sets. thus 1<<5
+        icache8->m_set_mask = (1<<5)-1; //1set=4blocks,256/8=32 so  we have 32 sets. thus 1<<5
         icache8->m_tag_shift = 14; //lower 9+5=14 used for offset and index so shift by 15 for tag
         icache8->m_nways = 8;
 
